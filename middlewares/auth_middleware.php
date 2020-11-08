@@ -1,11 +1,7 @@
 <?php
-require '../vendor/autoload.php';
+require '../bootstrap/bootstrap.php';
 
 use Ahc\Jwt\JWT;
-use Dotenv\Dotenv;
-
-$dotenv = Dotenv::createImmutable('..');
-$dotenv->load();
 
 class AuthStatus {
     const SUCCESS = 0;
@@ -74,7 +70,9 @@ function abortForbidden()
     exit;
 }
 
-// Authentication and authorization wrapper function
+/**
+ * Authentication and authorization wrapper function
+ */
 function auth_wrapper(callable $function, $scopes = ['user'])
 {
     $token = getBearerToken();

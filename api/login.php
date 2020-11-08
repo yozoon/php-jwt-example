@@ -1,8 +1,7 @@
 <?php
-require '../vendor/autoload.php';
+require '../bootstrap/bootstrap.php';
 
 use Ahc\Jwt\JWT;
-use Dotenv\Dotenv;
 
 if ($_SERVER['REQUEST_METHOD'] != 'POST') {
     header("HTTP/1.1 405 Method Not Allowed");
@@ -10,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] != 'POST') {
     exit;
 }
 
-if(!isset($_POST['username'], $_POST['password'])) {
+if (!isset($_POST['username'], $_POST['password'])) {
     header("HTTP/1.1 400 Bad Request");
     echo "bad request";
     exit;
@@ -23,9 +22,6 @@ function returnToken($token)
     echo json_encode($jwtArray);
     exit;
 }
-
-$dotenv = Dotenv::createImmutable('..');
-$dotenv->load();
 
 // https://github.com/adhocore/php-jwt
 // Instantiate with key, algo, maxAge (s) and leeway (s).
