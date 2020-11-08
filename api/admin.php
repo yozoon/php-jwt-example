@@ -7,7 +7,7 @@ if ($_SERVER['REQUEST_METHOD'] != 'GET') {
     exit;
 }
 
-auth_wrapper(function () {
+auth_wrapper(function ($uid) {
     header('Content-Type: application/json');
     echo json_encode(['data' => 'This info is only accessible to administrators!']);
-}, null, ["user", "admin"]);
+}, ["user", "admin"]);

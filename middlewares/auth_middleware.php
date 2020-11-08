@@ -7,11 +7,21 @@ use Dotenv\Dotenv;
 $dotenv = Dotenv::createImmutable('..');
 $dotenv->load();
 
-class AuthResult
-{
+class AuthStatus {
     const SUCCESS = 0;
     const UNAUTHORIZED = 1;
     const FORBIDDEN = 2;
+}
+
+class AuthResult
+{
+    public int $status;
+    public $uid;
+
+    function __construct($status, $uid) {
+        $this->status = $status;
+        $this->uid = $uid;
+    }
 }
 
 function getBearerToken()
@@ -38,14 +48,16 @@ function verifyToken($token, $scopes)
     try {
         $payload = (new JWT($_ENV['JWT_SECRET'], $_ENV['JWT_ALGORITHM'], $_ENV['JWT_MAX_AGE'], $_ENV['JWT_LEEWAY']))->decode($token);
     } catch (\Ahc\Jwt\JWTException $e) {
-        return AuthResult::UNAUTHORIZED;
+        return new AuthResult(AuthStatus::UNAUTHORIZED, null);
     }
     $intersect = array_intersect($payload['scopes'], $scopes);
     if (count($intersect) == count($scopes)) {
-        return AuthResult::SUCCESS;
+        $uid = $payload['uid'];
+        return new AuthResult(AuthStatus::SUCCESS, $uid);
     } else {
-        return AuthResult::FORBIDDEN;
+        return new AuthResult(AuthStatus::FORBIDDEN, null);
     }
+    return new AuthResult(AuthStatus::UNAUTHORIZED, null);
 }
 
 function abortUnauthorized()
@@ -63,19 +75,19 @@ function abortForbidden()
 }
 
 // Authentication and authorization wrapper function
-function auth_wrapper(callable $function, $params = null, $scopes = ['user'])
+function auth_wrapper(callable $function, $scopes = ['user'])
 {
     $token = getBearerToken();
     if ($token == null) abortUnauthorized();
     $verificationResult = verifyToken($token, $scopes);
-    switch ($verificationResult) {
-        case AuthResult::SUCCESS:
-            $function($params);
+    switch ($verificationResult->status) {
+        case AuthStatus::SUCCESS:
+            $function($verificationResult->uid);
             break;
-        case AuthResult::UNAUTHORIZED:
+        case AuthStatus::UNAUTHORIZED:
             abortUnauthorized();
             break;
-        case AuthResult::FORBIDDEN:
+        case AuthStatus::FORBIDDEN:
             abortForbidden();
             break;
         default:

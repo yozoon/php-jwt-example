@@ -5,8 +5,9 @@ function goHome() {
 $(document).ready(function () {
     if (!sessionStorage['token']) goHome();
 
+    var apiUrl = location.protocol + "//" + location.host + "/api/";
+
     var decoded = jwt_decode(sessionStorage["token"]);
-    var scopes = decoded["scopes"];
     var token_epiration = decoded["exp"];
     var now = Math.floor(Date.now() / 1000);
     setTimeout(function () {
@@ -15,7 +16,7 @@ $(document).ready(function () {
     }, (token_epiration - now) * 1000);
 
     $.ajax({
-        url: "http://localhost:8000/api/resource.php",
+        url:  apiUrl + "resource.php",
         method: "GET",
         beforeSend: function (xhr) {
             xhr.setRequestHeader("Authorization", "Bearer " + sessionStorage["token"]);
@@ -27,12 +28,13 @@ $(document).ready(function () {
             },
         }, success: function (result) {
             $(".container").append(result["data"]);
+            $(".container").append("<br>");
         },
     });
 
-    if (scopes.includes("admin")) {
+    if (decoded["scopes"].includes("admin")) {
         $.ajax({
-            url: "http://localhost:8000/api/admin.php",
+            url: apiUrl + "admin.php",
             method: "GET",
             beforeSend: function (xhr) {
                 xhr.setRequestHeader("Authorization", "Bearer " + sessionStorage["token"]);
@@ -43,7 +45,6 @@ $(document).ready(function () {
                     goHome();
                 },
             }, success: function (result) {
-                $(".container").append("<br>");
                 $(".container").append(result["data"]);
             },
         });
