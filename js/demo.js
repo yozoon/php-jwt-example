@@ -1,11 +1,9 @@
 function goHome() {
-    window.location.replace("http://localhost:8000");
+    window.location.replace("..");
 }
 
 $(document).ready(function () {
     if (!sessionStorage['token']) goHome();
-
-    var apiUrl = location.protocol + "//" + location.host + "/api/";
 
     var decoded = jwt_decode(sessionStorage["token"]);
     var token_epiration = decoded["exp"];
@@ -16,7 +14,7 @@ $(document).ready(function () {
     }, (token_epiration - now) * 1000);
 
     $.ajax({
-        url:  apiUrl + "resource.php",
+        url:  "../api/resource.php",
         method: "GET",
         beforeSend: function (xhr) {
             xhr.setRequestHeader("Authorization", "Bearer " + sessionStorage["token"]);
@@ -34,7 +32,7 @@ $(document).ready(function () {
 
     if (decoded["scopes"].includes("admin")) {
         $.ajax({
-            url: apiUrl + "admin.php",
+            url: "../api/admin.php",
             method: "GET",
             beforeSend: function (xhr) {
                 xhr.setRequestHeader("Authorization", "Bearer " + sessionStorage["token"]);

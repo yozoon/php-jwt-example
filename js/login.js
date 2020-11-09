@@ -1,9 +1,10 @@
 $(document).ready(function () {
-    $("form").submit(function (event) {
+    $("#login").click(function (event) {
+        console.log("clicked");
         var _username = $("#username").val();
         var _password = $("#password").val();
         $.ajax({
-            url: "http://localhost:8000/api/login.php",
+            url: "api/login.php",
             method: "POST",
             data: { "username": _username, "password": _password, },
             statusCode: {
@@ -12,7 +13,7 @@ $(document).ready(function () {
                 },
             }, success: function (result) {
                 sessionStorage["token"] = result["token"];
-                window.location.replace("http://localhost:8000/views/demo.html");
+                window.location.replace("views/demo.html");
             },
         });
     })
